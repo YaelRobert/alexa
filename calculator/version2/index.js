@@ -1,19 +1,6 @@
-const promisify = require('es6-promisify');
+
 
 const Alexa = require('ask-sdk-core');
-const appId = 'amzn1.ask.skill.275776ef-6d1a-4f2d-9d56-be2b8361ff25';
-
-const opTable = 'Statistics';
-
-const docClient = new Alexa.DynamoDB.DocumentClient();
-
-const dbScan = promisify(docClient.scan, docClient);
-const dbGet = promisify(docClient.get, docClient);
-const dbPut = promisify(docClient.put, docClient);
-const dbDelete = promisify(docClient.delete, docClient);
-
-
-
 
 const LaunchRequestHandler = {
 	canHandle(handlerInput){
@@ -27,36 +14,6 @@ const LaunchRequestHandler = {
 	},
 };
 
-
-const StatsHandler = {
-	canHandle(handlerInput){
-		const request = handlerInput.requestEnvelope.request;
-		console.log("Inside StatsHandler");
-		console.log(JSON.stringify(request));
-
-
-        return request.type === 'IntentRequest' && request.intent.name === 'ShowStats' ; 
-
-	},
-	async handle(handlerInput){
-	    
-	    const attributesManager = handlerInput.attributesManager;
-	    const sessionAttributes = await attributesManager.getPersistentAttributes() || {};
-	    
-	    const op = sessionAttributes.hasOwnProperty('operation') ? sessionAttributes.operation : 0;
-        const time = sessionAttributes.hasOwnProperty('timestamp') ? sessionAttributes.timestamp : 0;
-        
-        const speakOutput = `You have the following stats : operation ${op} times; timestamped ${time}.`;
-        const response = handlerInput.responseBuilder;
-        
-        return response
-                .speak(speakOutput)
-                .reprompt(speakOutput)
-                .getResponse()
-	},
-};
-
-
 const MathHandler = {
 	canHandle(handlerInput){
 		const request = handlerInput.requestEnvelope.request;
@@ -64,57 +21,19 @@ const MathHandler = {
 		console.log("Inside MathHandler - canHandle");
 		console.log(JSON.stringify(request));
 
-        return request.type === 'IntentRequest' &&
-				request.intent.name === 'DoMath'; 
+		return request.type === "IntentRequest" &&
+			(request.intent.name === "DoMath");
 	},
-	async handle(handlerInput){
+	handle(handlerInput){
 		console.log("Inside MathHandler - handle");
-        
-        const { userId } = this.event.session.user;
-        const slot = handlerInput.requestEnvelope.request.intent.slots;
-        
-        const op = slot.operator.value;
-        const attributesManager = handlerInput.attributesManager;
-        
-        const serviceClientFactory = handlerInput.serviceClientFactory;
- 	    const deviceId = handlerInput.requestEnvelope.context.System.device.deviceId;
-        
-         let userTimeZone;
-        
-         try{
-            const upsServiceClient = serviceClientFactory.getUpsServiceClient();
-            userTimeZone = await upsServiceClient.getSystemTimeZone(deviceId);
-        }catch(error){
-            if(error.name !== 'ServiceError'){
-                return handlerInput.responseBuilder.speak("There was a problem connecting with the service.").getResponse();
-            }
-            console.log('error'.error.message);
-        }
-        console.log('userTimeZone', userTimeZone);
-        
-         const currentDateTime = new Date(new Date().toLocaleString('en-US',{timeZone : userTimeZone}));
-        
-        const currentTime = new Date(currentDateTime.getHours(),currentDateTime.getMinutes());
-        const currentDate = new Date(currentDateTime.getFullYear(),currentDateTime.getMonth(), currentDateTime.getDate());
-        
-    
-        
-        const opDynamoAttr = {
-            TableName : opTable,
-            Item: {
-            "UserId" : userId,
-            "operation" : op,
-            "timestamp" : currentDateTime.toString
-            }
-        };
-        
-        dbPut(opDynamoAttr);
-        console.log('Added Session Attributes as a new record');
-        var answer = calculate(handlerInput);
-            
+
+		const attributes = handlerInput.attibutesManager.getSessionAttributes();
+
+		attributes.state = states.CALC; 
+
 		const response = handlerInput.responseBuilder;
 
-		
+		var answer = calculate(handlerInput);
 
 		return response 
 		           .speak(answer)
@@ -125,15 +44,22 @@ const MathHandler = {
 	},
 };
 
+const StatsHandler = {
+	canHandle(handlerInput){
+		const request = handlerInput.requestEnvelope.request;
+		console.log("Inside StatsHandler");
+		console.log(JSON.stringify(request));
 
+		return request.type === "IntentRequest" &&
+				(request.intent.name === 'StatsIntent')
 
-
-
+	}
+}
 
 const ExitHandler = {
 	canHandle(handlerInput){
 		console.log("Inside ExitHandler");
-		const attributes = handlerInput.attributesManager.getSessionAttributes();
+		const attributes = handlerInput.attibutesManager.getSessionAttributes();
 		const request = handlerInput.requestEnvelope.request;
 
 		return request.type === 'IntentRequest' && (
@@ -147,25 +73,18 @@ const ExitHandler = {
 			.speak(exitSkillMessage) 
 			.getResponse();
 	},
-};
+}
 
-const SessionEndedRequestHandler = {
-  canHandle(handlerInput) {
-    console.log("Inside SessionEndedRequestHandler");
-    return handlerInput.requestEnvelope.request.type === 'SessionEndedRequest';
-  },
-  handle(handlerInput) {
-    console.log(`Session ended with reason: ${JSON.stringify(handlerInput.requestEnvelope)}`);
-    return handlerInput.responseBuilder.getResponse();
-  },
-};
-
-
-const skillBuilder = Alexa.SkillBuilders.standard();
-const welcomeMessage = `Welcome to the Audio Calci. This Alexa Skill is brought to you by AlgoAsylum. You can ask me what is two plus two and likewise similar math questions.`;
+const skillBuilder = Alexa.SkillBuilders.custom();
+const welcomeMessage = `Welcome to Audio Calci. This skill is brought to you by AlgoAsylum. You can ask me what is two plus two and likewise similar math questions.`;
 const helpMessage = `What would you like to calculate?`;
 const exitSkillMessage = `Thank you for using this skill. We at AlgoAsylum would love to have your feedback, please leave it at the comments section! See you soon!`;
 
+
+const states = {
+	START : '_START',
+	CALC : '_CALC',
+};
 
 function calculate(handlerInput){
 	console.log("I am in calculate()");
@@ -213,10 +132,6 @@ function calculate(handlerInput){
 
     result = result.toString();
     result = number + ` ` + operator + ` ` + numbertwo + ` equals ` + result;
-    
-    
-    
-        
 	
 	return result;
 }
@@ -224,12 +139,7 @@ function calculate(handlerInput){
 
 exports.handler = skillBuilder
 	.addRequestHandlers(
-	    StatsHandler,
 		LaunchRequestHandler,
 		MathHandler,
-		ExitHandler,
-		SessionEndedRequestHandler)
-	.withTableName(opTable)
-    .withAutoCreateTable(true)
+		ExitHandler)
 	.lambda();
-	
