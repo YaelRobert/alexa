@@ -1,0 +1,220 @@
+{
+    "interactionModel": {
+        "languageModel": {
+            "invocationName": "my calci",
+            "intents": [
+                {
+                    "name": "AMAZON.CancelIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.HelpIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.StopIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.NavigateHomeIntent",
+                    "samples": []
+                },
+                {
+                    "name": "DoMath",
+                    "slots": [
+                        {
+                            "name": "number",
+                            "type": "AMAZON.NUMBER"
+                        },
+                        {
+                            "name": "operator",
+                            "type": "Operator"
+                        },
+                        {
+                            "name": "numbertwo",
+                            "type": "AMAZON.NUMBER"
+                        }
+                    ],
+                    "samples": [
+                        "what is {number} {operator} {numbertwo}",
+                        "{operator} {number} from  {numbertwo}",
+                        "{operator} {number} by  {numbertwo}",
+                        "{operator} {number} to  {numbertwo}",
+                        "{number} {operator} {numbertwo}",
+                        "calculate number plus {number} {operator} {numbertwo}",
+                        "please calculate {number} {operator} {numbertwo}",
+                        "calculate this {number} {operator} {numbertwo}"
+                    ]
+                },
+                {
+                    "name": "AMAZON.PauseIntent",
+                    "samples": []
+                },
+                {
+                    "name": "ShowStats",
+                    "slots": [
+                        {
+                            "name": "statistics",
+                            "type": "Statistics"
+                        }
+                    ],
+                    "samples": [
+                        "{statistics}",
+                        "what are my {statistics} till now",
+                        "what are my {statistics}",
+                        "give me my {statistics}"
+                    ]
+                },
+                {
+                    "name": "ResetStats",
+                    "slots": [
+                        {
+                            "name": "stats",
+                            "type": "Statistics"
+                        }
+                    ],
+                    "samples": [
+                        "delete {stats}",
+                        "reset {stats}"
+                    ]
+                },
+                {
+                    "name": "MissStats",
+                    "slots": [],
+                    "samples": [
+                        "what did i miss"
+                    ]
+                },
+                {
+                    "name": "TimeStats",
+                    "slots": [
+                        {
+                            "name": "time",
+                            "type": "Ttime"
+                        },
+                        {
+                            "name": "no",
+                            "type": "AMAZON.NUMBER"
+                        },
+                        {
+                            "name": "stats",
+                            "type": "Statistics"
+                        }
+                    ],
+                    "samples": [
+                        "{stats} {no} {time} back",
+                        "what is my {stats} {no} {time} back "
+                    ]
+                }
+            ],
+            "types": [
+                {
+                    "name": "Operator",
+                    "values": [
+                        {
+                            "id": "div",
+                            "name": {
+                                "value": "divide",
+                                "synonyms": [
+                                    "by",
+                                    "divides"
+                                ]
+                            }
+                        },
+                        {
+                            "id": "mul",
+                            "name": {
+                                "value": "multiply",
+                                "synonyms": [
+                                    "multiplied by",
+                                    "into",
+                                    "multiplies",
+                                    "times"
+                                ]
+                            }
+                        },
+                        {
+                            "id": "min",
+                            "name": {
+                                "value": "minus",
+                                "synonyms": [
+                                    "subtracting",
+                                    "subtract"
+                                ]
+                            }
+                        },
+                        {
+                            "id": "plus",
+                            "name": {
+                                "value": "plus",
+                                "synonyms": [
+                                    "add"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Statistics",
+                    "values": [
+                        {
+                            "name": {
+                                "value": "logs"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "data"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "records"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "statistics"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "stats"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Ttime",
+                    "values": [
+                        {
+                            "name": {
+                                "value": "weeks"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "week"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "hours"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "day"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "days"
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+}
